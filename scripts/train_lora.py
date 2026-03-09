@@ -16,7 +16,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--data-path", default="data/generated/adapter_train.jsonl")
     parser.add_argument("--output-dir", default="outputs/hermes_adapter_lora_v1")
-    parser.add_argument("--model-path", default="Qwen/Qwen3.5-0.8B-Instruct")
+    parser.add_argument("--model-path", default="Qwen/Qwen3.5-0.8B")
+    parser.add_argument(
+        "--dataset-type",
+        default="chat_template",
+        choices=["chat_template", "alpaca", "passthrough"],
+    )
+    parser.add_argument("--field-messages", default="messages")
 
     parser.add_argument("--num-epochs", type=int, default=3)
     parser.add_argument("--learning-rate", type=float, default=1e-4)
@@ -31,6 +37,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--qlora", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument(
         "--save-model", action=argparse.BooleanOptionalAction, default=False
+    )
+    parser.add_argument(
+        "--assistant-only-loss", action=argparse.BooleanOptionalAction, default=False
     )
     parser.add_argument("--wandb-project", default="")
     parser.add_argument("--wandb-entity", default="")
@@ -62,8 +71,8 @@ def main() -> None:
         "model_path": args.model_path,
         "data_path": args.data_path,
         "ckpt_output_dir": str(output_dir),
-        "dataset_type": "chat_template",
-        "field_messages": "messages",
+        "dataset_type": args.dataset_type,
+        "field_messages": args.field_messages,
         "num_epochs": args.num_epochs,
         "learning_rate": args.learning_rate,
         "max_seq_len": args.max_seq_len,
@@ -76,6 +85,7 @@ def main() -> None:
         "bf16": True,
         "sample_packing": True,
         "save_model": bool(args.save_model),
+        "assistant_only_loss": bool(args.assistant_only_loss),
         "logging_steps": 10,
         "save_steps": 200,
         "save_total_limit": 2,
@@ -93,6 +103,18 @@ def main() -> None:
 
     training_hub = importlib.import_module("training_hub")
     lora_sft = getattr(training_hub, "lora_sft")
+
+    lora_module = importlib.import_module("training_hub.algorithms.lora")
+    original_build_training_args = getattr(
+        lora_module.UnslothLoRABackend, "_build_training_args"
+    )
+
+    def _patched_build_training_args(self, params):
+        config = original_build_training_args(self, params)
+        config.assistant_only_loss = bool(params.get("assistant_only_loss", False))
+        return config
+
+    lora_module.UnslothLoRABackend._build_training_args = _patched_build_training_args
 
     if "CUDA_VISIBLE_DEVICES" in os.environ:
         print(f"Using CUDA_VISIBLE_DEVICES={os.environ['CUDA_VISIBLE_DEVICES']}")

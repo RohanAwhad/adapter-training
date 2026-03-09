@@ -159,7 +159,7 @@ Preferred first run: QLoRA on 0.8B model, then repeat on 2B.
 
 Suggested initial config:
 
-- model: `Qwen/Qwen3.5-0.8B-Instruct` (replace with exact available id)
+- model: `Qwen/Qwen3.5-0.8B`
 - algorithm: `lora_sft`
 - dataset: messages/chat-template format
 - `dataset_type=chat_template`
@@ -178,7 +178,7 @@ cd "$TRAINING_HUB_DIR"
 uv run python examples/scripts/lora_example.py \
   --data-path "$PROJECT_DIR/data/generated/adapter_train.jsonl" \
   --ckpt-output-dir "$PROJECT_DIR/outputs/hermes_adapter_lora_v1" \
-  --model-path Qwen/Qwen3.5-0.8B-Instruct \
+  --model-path Qwen/Qwen3.5-0.8B \
   --dataset-type chat_template \
   --field-messages messages \
   --qlora \
@@ -224,7 +224,7 @@ cd /Users/rawhad/1_Projects/training_hub
 uv run python examples/scripts/lora_example.py \
   --data-path /path/to/your/repo/data/generated/adapter_train.jsonl \
   --ckpt-output-dir /path/to/your/repo/outputs/hermes_adapter_lora_v1 \
-  --model-path Qwen/Qwen3.5-0.8B-Instruct \
+  --model-path Qwen/Qwen3.5-0.8B \
   --dataset-type chat_template \
   --field-messages messages \
   --qlora \
