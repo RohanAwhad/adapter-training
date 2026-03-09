@@ -172,6 +172,62 @@ uv run python examples/scripts/lora_example.py \
 
 If multi-GPU data parallel is used, launch with `torchrun` per training_hub docs.
 
+## Phase 6.5 - Node Execution Workflow (node01)
+
+Training runs on reserved GPU node:
+
+- node: `node01`
+- GPU binding: `CUDA_VISIBLE_DEVICES=0`
+
+Workflow split:
+
+1. Local machine (this workspace):
+   - make code/data generation updates
+   - commit changes
+   - push to remote
+2. On `node01`:
+   - pull latest repo changes
+   - run training in tmux so it survives disconnects
+
+Recommended tmux flow on node:
+
+```bash
+ssh node01
+cd /path/to/your/repo
+git pull
+
+tmux new -s hermes-train
+export CUDA_VISIBLE_DEVICES=0
+
+cd /Users/rawhad/1_Projects/training_hub
+uv run python examples/scripts/lora_example.py \
+  --data-path /path/to/your/repo/data/generated/adapter_train.jsonl \
+  --ckpt-output-dir /path/to/your/repo/outputs/hermes_adapter_lora_v1 \
+  --model-path Qwen/Qwen3.5-0.8B-Instruct \
+  --dataset-type chat_template \
+  --field-messages messages \
+  --qlora \
+  --lora-r 32 \
+  --lora-alpha 64 \
+  --learning-rate 1e-4 \
+  --num-epochs 3 \
+  --max-seq-len 4096 \
+  --micro-batch-size 2 \
+  --effective-batch-size 32
+```
+
+tmux control:
+
+- detach: `Ctrl-b d`
+- reattach: `tmux attach -t hermes-train`
+- list sessions: `tmux ls`
+
+After run completes on node:
+
+1. collect logs + checkpoint path
+2. optionally commit evaluation artifacts from local side
+3. run post-train benchmark against served checkpoint
+
 ## Phase 7 - Post-Training Validation
 
 1. Serve adapter model checkpoint (or merged model) on local endpoint.
@@ -204,5 +260,6 @@ If gates fail:
 - [ ] Patch-apply quality gates all green
 - [ ] Baseline benchmark captured
 - [ ] LoRA training run completed
+- [ ] Node execution done in `tmux` on `node01` with `CUDA_VISIBLE_DEVICES=0`
 - [ ] Post-train benchmark + holdout eval captured
 - [ ] Go/no-go decided against thresholds
