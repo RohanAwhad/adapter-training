@@ -1,9 +1,0 @@
-README.md
-pyproject.toml
-src/adapter_training/__init__.py
-src/adapter_training/adapter_format.py
-src/hermes_adapter_training_plan.egg-info/PKG-INFO
-src/hermes_adapter_training_plan.egg-info/SOURCES.txt
-src/hermes_adapter_training_plan.egg-info/dependency_links.txt
-src/hermes_adapter_training_plan.egg-info/requires.txt
-src/hermes_adapter_training_plan.egg-info/top_level.txt
