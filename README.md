@@ -30,6 +30,27 @@ Create these artifacts (paths are suggestions):
 - `results/posttrain_benchmark.json`
 - `results/holdout_eval.json`
 
+## Implemented Scripts
+
+- `scripts/download_hermes.py`
+  - downloads Hermes configs into `data/raw/*.jsonl`
+- `scripts/build_training_data.py`
+  - canonicalizes Hermes rows
+  - generates adapter-style draft/label pairs
+  - writes `adapter_train.jsonl`, `adapter_val.jsonl`, `adapter_test.jsonl`
+- `scripts/train_lora.py`
+  - launches LoRA SFT via `training_hub` against generated `messages` data
+- `scripts/start_training_tmux.sh`
+  - starts `scripts/train_lora.py` in a detached tmux session
+
+## Quick Runbook
+
+```bash
+uv run python scripts/download_hermes.py
+uv run python scripts/build_training_data.py
+uv run python scripts/train_lora.py --dry-run
+```
+
 ## Phase 0 - Environment Setup
 
 1. Define stable roots:
