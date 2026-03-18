@@ -43,8 +43,6 @@ Rules
 - Preserve valid content and correct tool calls whenever possible.
 - Use "add" only when the target path does not already exist.
 - Use "replace" only when the target path already exists.
-- For "add" and "replace", include a "value" field.
-- For "remove", omit the "value" field.
 
 Allowed patch paths
 - /content
@@ -91,7 +89,7 @@ Tool-call schema requirements (critical)
 {
   "decision":"patch",
   "patches":[
-    {"op":"remove","path":"/content"}
+    {"op":"remove","path":"/content", "value": ""}
   ]
 }
 
@@ -140,7 +138,7 @@ Tool-call schema requirements (critical)
 {
   "decision":"patch",
   "patches":[
-    {"op":"remove","path":"/tool_calls/1"}
+    {"op":"remove","path":"/tool_calls/1", "value": ""}
   ]
 }
 
@@ -148,7 +146,7 @@ Tool-call schema requirements (critical)
 {
   "decision":"patch",
   "patches":[
-    {"op":"remove","path":"/tool_calls"}
+    {"op":"remove","path":"/tool_calls", "value": ""}
   ]
 }
 
